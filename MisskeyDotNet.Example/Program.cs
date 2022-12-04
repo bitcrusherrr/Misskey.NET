@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using MisskeyDotNet;
 
 namespace MisskeyDotNet.Example
 {
@@ -10,29 +11,29 @@ namespace MisskeyDotNet.Example
     {
         static async Task Main()
         {
-            Misskey io;
+            MisskeyDotNet.Misskey io;
             if (File.Exists("credential"))
             {
                 io = Misskey.Import(await File.ReadAllTextAsync("credential"));
             }
             else
             {
-                var miAuth = new MiAuth("misskey.io", "Misskey.NET", null, null, Permission.All);
+                var miAuth = new MiAuth("INSTANCE.TLD", "Misskey.NET", null, null, Permission.All);
                 if (!miAuth.TryOpenBrowser())
                 {
-                    Console.WriteLine("次のURLをお使いのウェブブラウザーで開き、認証を完了させてください。");
+                    Console.WriteLine("Open the following URL in your web browser to complete the authentication.");
                     Console.WriteLine(miAuth.Url);
                 }
-                Console.WriteLine("認可が完了したら、ENTER キーを押してください。");
+                Console.WriteLine("Press ENTER when authorization is complete.");
                 Console.ReadLine();
 
                 io = await miAuth.CheckAsync();
                 await File.WriteAllTextAsync("credential", io.Export());
             }
 
-            // await FetchReactions(io);
-            // await SummonError(io);
-            // await GetMeta(io);
+            await FetchReactions(io);
+            await SummonError(io);
+            await GetMeta(io);
             await FetchInstances();
         }
 
@@ -40,7 +41,7 @@ namespace MisskeyDotNet.Example
         {
             var note = await mi.ApiAsync<Note>("notes/show", new
             {
-                noteId = "7zzafqsm9a",
+                noteId = "98c9jek61t",
             });
 
             Console.WriteLine("Note ID: " + note.Id);
@@ -79,18 +80,18 @@ namespace MisskeyDotNet.Example
             try
             {
                 var meta = await mi.ApiAsync<Meta>("meta");
-                Console.WriteLine($"インスタンス名: {meta.Name}");
-                Console.WriteLine($"バージョン: {meta.Version}");
-                Console.WriteLine($"説明: {meta.Description}");
-                Console.WriteLine($"管理者: {meta.MaintainerName}");
-                Console.WriteLine($"管理者メール: {meta.MaintainerEmail}");
-                Console.WriteLine($"LTL: {(meta.DisableLocalTimeline ? "いいえ" : "はい")}");
-                Console.WriteLine($"GTL: {(meta.DisableGlobalTimeline ? "いいえ" : "はい")}");
-                Console.WriteLine($"登録可能: {(meta.DisableRegistration ? "いいえ" : "はい")}");
-                Console.WriteLine($"メール: {(meta.EnableEmail ? "はい" : "いいえ")}");
-                Console.WriteLine($"Twitter認証: {(meta.EnableTwitterIntegration ? "はい" : "いいえ")}");
-                Console.WriteLine($"Discord認証: {(meta.EnableDiscordIntegration ? "はい" : "いいえ")}");
-                Console.WriteLine($"GitHub認証: {(meta.EnableGithubIntegration ? "はい" : "いいえ")}");
+                Console.WriteLine($"Instance name: {meta.Name}");
+                Console.WriteLine($"Version: {meta.Version}");
+                Console.WriteLine($"Description: {meta.Description}");
+                Console.WriteLine($"Admin: {meta.MaintainerName}");
+                Console.WriteLine($"Admin email: {meta.MaintainerEmail}");
+                Console.WriteLine($"LTL: {(meta.DisableLocalTimeline ? "No" : "Yes")}");
+                Console.WriteLine($"GTL: {(meta.DisableGlobalTimeline ? "No" : "Yes")}");
+                Console.WriteLine($"Registration open: {(meta.DisableRegistration ? "No" : "Yes")}");
+                Console.WriteLine($"Email enabled: {(meta.EnableEmail ? "Yes" : "No")}");
+                Console.WriteLine($"Twitter Integration: {(meta.EnableTwitterIntegration ? "Yes" : "No")}");
+                Console.WriteLine($"Discord Integration: {(meta.EnableDiscordIntegration ? "Yes" : "No")}");
+                Console.WriteLine($"GitHub Integration: {(meta.EnableGithubIntegration ? "Yes" : "No")}");
             }
             catch (MisskeyApiException e)
             {
@@ -100,9 +101,9 @@ namespace MisskeyDotNet.Example
         private static async ValueTask FetchInstances()
         {
             var res = await Misskey.JoinMisskeyInstancesApiAsync();
-            Console.WriteLine($"最終更新: {res.Date}");
-            Console.WriteLine($"インスタンス数: {res.Stats.InstancesCount}");
-            Console.WriteLine($"インスタンス一覧:");
+            Console.WriteLine($"Last update: {res.Date}");
+            Console.WriteLine($"Number of instances: {res.Stats.InstancesCount}");
+            Console.WriteLine($"Instance list: ");
             res.InstancesInfos.Select(meta => " " + meta.Url).ToList().ForEach(Console.WriteLine);
         }
     }

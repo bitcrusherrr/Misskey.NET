@@ -24,7 +24,7 @@ namespace MisskeyDotNet
             }
             else
             {
-                throw new NotSupportedException("このプラットフォームはサポートされていません。");
+                throw new NotSupportedException("This platform is not supported.");
             }
         }
     }
